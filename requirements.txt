@@ -1,0 +1,5 @@
+flask
+fastapi
+validate_email
+pydantic[email]
+python-multipart
