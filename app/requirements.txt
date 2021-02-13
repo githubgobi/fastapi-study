@@ -3,3 +3,5 @@ fastapi
 validate_email
 pydantic[email]
 python-multipart
+sqlalchemy
+mysql-connector-python

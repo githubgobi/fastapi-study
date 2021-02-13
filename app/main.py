@@ -1,4 +1,4 @@
-from fastapi import Depends, FastAPI, Request, WebSocket, Query
+from fastapi import Depends, FastAPI, Request, WebSocket, Query, HTTPException
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from fastapi.responses import JSONResponse, HTMLResponse
 
@@ -7,6 +7,12 @@ from fastapi_jwt_auth import AuthJWT
 from .dependencies import get_query_token, get_token_header
 from .internal import admin
 from .routers import items, users, auth
+
+from typing import List
+from sqlalchemy.orm import Session
+
+from app import models, schemas, crud
+from app.database import engine, SessionLocal
 
 # app = FastAPI(dependencies=[Depends(get_query_token)])
 app = FastAPI()
@@ -84,3 +90,22 @@ async def websocket(websocket: WebSocket, token: str = Query(...), Authorize: Au
     except AuthJWTException as err:
         await websocket.send_text(err.message)
         await websocket.close()
+
+def get_db():
+    db = None
+    try:
+        db = SessionLocal()
+        yield db
+    finally:
+        db.close()
+
+@app.post("/customer", response_model=schemas.UserInfo)
+def create_customer(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    db_user = crud.get_user_by_username(db, username=user.username)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Username already registered")
+    return crud.create_user(db=db, user=user)
+
+@app.get("/customer", response_model=List[schemas.UserList])
+def customer_list(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    return crud.get_users(db, skip=skip, limit=limit);  
