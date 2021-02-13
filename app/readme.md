@@ -1,0 +1,1 @@
+https://dev.to/cuongld2/build-simple-api-service-with-python-fastapi-part-1-581o
