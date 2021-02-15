@@ -109,3 +109,6 @@ def create_customer(user: schemas.UserCreate, db: Session = Depends(get_db)):
 @app.get("/customer", response_model=List[schemas.UserList])
 def customer_list(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return crud.get_users(db, skip=skip, limit=limit);  
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=4000)    
